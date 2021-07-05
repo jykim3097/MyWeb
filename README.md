@@ -350,3 +350,38 @@ public String success(Model model) {
 
 #### cdata 속성
 * mybatis가 <>을 태그로 인식하기 때문에 이를 문자열로 인식시키게 한다
+
+
+21.07.05    
+# 파일 업로드
+* 일반 업로드와 비동기 업로드, 크게 두 가지 방식이 있다
+* 파일이 많아지면 파일을 하드디스크에 저장하고 파일 경로를 DB에 저장한다.
+
+## 일반 업로드
+* 크게 3가지 방식이 있는데
+* 스프링에서 일반적으로 가장 많이 사용되는 것은 commons-fileupload 라이브러리를 이용하는 것이다
+* 이 라이브러리를 pom.xml에 작성해 다운받고 스프링 설정파일(servlet-context.xml)에 설정한다
+	* 이 때 bean의 id를 꼭 multipartResolver로 선언해야 인식한다
+	* 파일 사이즈와 인코딩 타입도 적는다
+
+### 파일 업로드
+* path는 상수로 설정해서 사용하면 편하다
+#### 단일 파일 업로드
+* jsp에서 하는 설정
+	* form의 속성에 enctype="multipart/form-data"를 반드시 설정해야 한다
+	* input 태그의 name을 컨트롤러에서 RequestParam으로 받기 때문에 name을 설정해야 한다
+* Controller에서 하는 설정
+	* RequestParam으로 form input의 name 속성에 접근하고 이를 file 타입으로 받는다 (import MultipartFile)
+	* 매개변수로 받아온 파일을 파일 객체에 담아 **transferTo 메서드**를 이용해 로컬에 저장한다
+		* 이 메서드가 FileWriter 작업을 한 방에 처리해주는 셈이다
+	* 이때 모든 코드는 에러가 발생할 수 있기 때문에 try-catch문 안에 작성한다
+#### 다중 파일 업로드
+* 한 번에 여러 개를 선택해서 업로드 하는 방법
+	* MultipartHttpServletRequest로 파일을 여러 개 받아 list에 파일을 담고 for문을 이용한다
+* 한 번에 한 개씩 업로드하는 방법
+	* 받아온 파일을 담는 리스트로 파일을 받아서 for문을 이용한다
+* 가변적인 폼 형식의 업로드
+	* 업로드될 파일을 객체에 담고 이를 list 객체에 담아 컨트롤러로 보낸다
+	* 컨트롤러에서는 리스트에 있는 값을 꺼내 업로드한다
+
+## 비동기 업로드
