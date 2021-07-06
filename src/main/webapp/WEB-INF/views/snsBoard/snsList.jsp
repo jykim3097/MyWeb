@@ -137,6 +137,55 @@
 	</div>
 
 
+	<script>
+		$(document).ready(function() {
+			
+			$("#uploadBtn").click(function() {
+				// var writer = '${sessionScope.userVO.userId}'; // 아이디
+				var file = $("#file").val();
+				var content = $("#content").val();
+				console.log(file); // 파일명 얻어오기
+				
+				file = file.slice(file.lastIndexOf(".", file.length) + 1, file.length); // 파일 확장자
+				console.log(file);
+				
+				if (file != 'jpg' && file != 'png' && file != 'PNG'  && file != 'bmp') {
+					alert("이미지 파일만 등록 가능합니다. (jpg, png, bmp)");
+					return;
+				} else if ( /* writer == '' */ false ) { //잠깐 false
+					alert("로그인이 필요한 서비스입니다.");
+					return;
+				}
+				
+				// 파일 데이터
+				console.log( $("#file")[0]);
+				console.log( $("#file")[0].files); //file list가 뜬다
+				console.log( $("#file")[0].files[0]);
+				
+				// 비동기 형식의폼데이터 사용 - form 안에 writer, content, file이 있다..
+				var formData = new FormData();
+				
+				//formData.append("writer", writer);
+				formData.append("content", content);
+				formData.append("file", $("#file")[0].files[0]);
+				
+				$.ajax({
+					type : "post",
+					url : "snsUpload",
+					processData : false, // 키=값으로 전송되는 것을 막는 옵션
+					contentType : false, // default 멀티파트 폼데이터 형식으로 지정
+					data : formData,
+					success : function(data) {
+						console.log(data);
+					},
+					error : function(status, error) {
+						
+					}
+				});
+			});
+		});
+	</script>
+
 
 
 	<script>
@@ -152,7 +201,7 @@
             	
             	reader.onload = function(event) { //읽기 동작이 성공적으로 완료 되었을 때 실행되는 익명함수
                 	$('#fileImg').attr("src", event.target.result); 
-                	console.log(event.target)//event.target은 이벤트로 선택된 요소를 의미
+                	//console.log(event.target)//event.target은 이벤트로 선택된 요소를 의미
 	        	}
         	}
 	    }

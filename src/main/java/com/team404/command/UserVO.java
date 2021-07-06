@@ -23,5 +23,5 @@ public class UserVO {
 	private Timestamp regdate;
 	
 	// N관계의 테이블을 list 형태로 선언
-	private ArrayList<FreeBoardVO> userBoardList; 
+	private ArrayList<FreeBoardVO> userBoardList;
 }

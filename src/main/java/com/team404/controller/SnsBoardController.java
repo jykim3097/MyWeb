@@ -1,27 +1,29 @@
 package com.team404.controller;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.team404.command.MultiUploadVO;
 import com.team404.command.UploadVO;
+import com.team404.command.UserVO;
 
 @Controller
 @RequestMapping("/snsBoard")
 public class SnsBoardController {
-
-	// 예제 화면 처리
-	@RequestMapping("/upload")
-	public void upload() {
-
-	}
 
 	// 단일 파일 업로드 형식
 	@RequestMapping("/upload_ok")
@@ -126,5 +128,63 @@ public class SnsBoardController {
 	@RequestMapping("/snsList")
 	public void snsList() {
 		
+	}
+	
+	//
+	@ResponseBody
+	@RequestMapping(value="/snsUpload", method=RequestMethod.POST)
+	public String upload(@RequestParam("content") String content,
+						 @RequestParam("file") MultipartFile file,
+						 HttpSession session) {
+		
+		UserVO userVO = (UserVO)session.getAttribute("userVO");
+
+		try {
+			String writer = "test"; //userVO.getUserId();
+			System.out.println(writer);
+			
+			System.out.println(file);
+			System.out.println(content);
+			
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			
+			String fileLoca = sdf.format(date); //폴더 위치
+			
+			File folder = new File(APP_CONSTANT.UPLOAD_PATH_ACADEMY + "\\" + fileLoca); //폴더를 만들위치
+			
+			if(!folder.exists()) {
+				folder.mkdir(); // 폴더 생성
+			}
+
+			// 파일명
+			String fileRealName = file.getOriginalFilename();
+			
+			// 사이즈
+			Long size = file.getSize();
+			
+			// 저장된 전체 경로
+			String uploadPath = folder.getPath(); // 폴더명을 포함한 경로
+			
+			// DB에서 다른 유저와 이름이 겹치지 않게 처리
+			String fileExtention = fileRealName.substring(fileRealName.lastIndexOf(".")); // 확장자 이름
+			
+			// 가짜 이름 만들기
+			UUID uuid = UUID.randomUUID(); //16진수 랜덤값
+			String fileName = uuid.toString().replaceAll("-", ""); //가짜 파일명 
+			
+			System.out.println("폴더 위치 : " + fileLoca);
+			System.out.println("파일명 : " + fileRealName);
+			System.out.println("사이즈 : " + size);
+			System.out.println("업로드 경로 : " + uploadPath);
+			System.out.println("업로드 파일명 : " + fileName + fileExtention);
+			
+		} catch (NullPointerException e) { // 에러시에 fail
+			return "return id - fail";
+		} catch (Exception e) {
+			return "fail";
+		}
+		
+		return "success";
 	}
 }
