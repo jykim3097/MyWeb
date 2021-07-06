@@ -176,7 +176,19 @@
 					contentType : false, // default 멀티파트 폼데이터 형식으로 지정
 					data : formData,
 					success : function(data) {
-						console.log(data);
+						
+						// 파일 업로드에 성공하면 파일 미리보기 안보이게
+						if(data == "success insert") {
+							
+							$("#file").val(""); // 태그
+							$("#content").val(""); //내용
+							$(".fileDiv").css("display", "none");
+							
+						} else if (data == "fail return id") {
+							alert("로그인이 필요한 서비스입니다.");
+						} else {
+							alert("서버에 문제가 생겼습니다. 관리자에게 문의하세요.");
+						}
 					},
 					error : function(status, error) {
 						

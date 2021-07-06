@@ -9,6 +9,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,12 +20,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.team404.command.MultiUploadVO;
+import com.team404.command.SnsBoardVO;
 import com.team404.command.UploadVO;
 import com.team404.command.UserVO;
+import com.team404.snsboard.service.SnsBoardService;
 
 @Controller
 @RequestMapping("/snsBoard")
 public class SnsBoardController {
+	
+	@Autowired
+	@Qualifier("snsBoardService")
+	private SnsBoardService snsBoardService;
 
 	// 단일 파일 업로드 형식
 	@RequestMapping("/upload_ok")
@@ -171,20 +179,34 @@ public class SnsBoardController {
 			
 			// 가짜 이름 만들기
 			UUID uuid = UUID.randomUUID(); //16진수 랜덤값
-			String fileName = uuid.toString().replaceAll("-", ""); //가짜 파일명 
+			String uuids = uuid.toString().replaceAll("-", ""); //가짜 파일명 
+			String fileName = uuids + fileExtention;
 			
 			System.out.println("폴더 위치 : " + fileLoca);
 			System.out.println("파일명 : " + fileRealName);
 			System.out.println("사이즈 : " + size);
 			System.out.println("업로드 경로 : " + uploadPath);
-			System.out.println("업로드 파일명 : " + fileName + fileExtention);
+			System.out.println("업로드 파일명 : " + fileName);
+			
+			File saveFile = new File(uploadPath + "\\" + fileName);
+			file.transferTo(saveFile); //파일 쓰기
+			
+			//DB작업
+			SnsBoardVO vo = new SnsBoardVO(0, writer, content, uploadPath, fileLoca, fileName, fileRealName, null);
+			int result = snsBoardService.insert(vo);
+			
+			if(result == 1) {
+				return "success insert";
+			} else {
+				return "fail insert";
+			}
+			
 			
 		} catch (NullPointerException e) { // 에러시에 fail
-			return "return id - fail";
+			return "fail return id";
 		} catch (Exception e) {
 			return "fail";
 		}
-		
-		return "success";
+
 	}
 }
