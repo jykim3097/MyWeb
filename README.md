@@ -385,3 +385,7 @@ public String success(Model model) {
 	* 컨트롤러에서는 리스트에 있는 값을 꺼내 업로드한다
 
 ## 비동기 업로드
+* form 태그 역할을 할 formData 객체를 생성한다
+	* 쉽게 생각해서 form이라고 생각하면 된다
+* ajax에서 contentType을 false로 지정하면 multipart/form-data로 선언된다
+* transferTo 작업 이후에 DB에서 insert 작업을 해주면 된다

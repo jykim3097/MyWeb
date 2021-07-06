@@ -34,3 +34,17 @@ create table users(
     addrDetail varchar2(300),
     regdate date default sysdate
 );
+
+-- 업로드 게시글 테이블
+create table SNSBOARD (
+    bno number(10) primary key,
+    writer varchar2(50) not null,
+    content varchar2(2000),
+    uploadpath varchar2(100) not null, -- 업로드 경로
+    fileloca varchar(100) not null, -- 폴더 위치
+    filename varchar2(100) not null, -- 변경된 파일명
+    filerealname varchar2(100) not null, -- 실제 파일명
+    regdate date default sysdate
+);
+
+create sequence SNSBOARD_SEQ increment by 1 start with 1 nocache;

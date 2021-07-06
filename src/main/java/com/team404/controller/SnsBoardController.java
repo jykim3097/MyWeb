@@ -19,7 +19,7 @@ public class SnsBoardController {
 
 	// 예제 화면 처리
 	@RequestMapping("/upload")
-	public void snsBoard() {
+	public void upload() {
 
 	}
 
@@ -120,5 +120,11 @@ public class SnsBoardController {
 		}
 		
 		return "snsBoard/upload_ok";
+	}
+	
+	/// 210706 
+	@RequestMapping("/snsList")
+	public void snsList() {
+		
 	}
 }
