@@ -1,6 +1,8 @@
 package com.team404.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,14 +13,18 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
 import com.team404.command.MultiUploadVO;
 import com.team404.command.SnsBoardVO;
 import com.team404.command.UploadVO;
@@ -148,18 +154,18 @@ public class SnsBoardController {
 		UserVO userVO = (UserVO)session.getAttribute("userVO");
 
 		try {
-			String writer = "test"; //userVO.getUserId();
-			System.out.println(writer);
+			String writer = userVO.getUserId();
 			
-			System.out.println(file);
-			System.out.println(content);
+//			System.out.println(writer);
+//			System.out.println(file);
+//			System.out.println(content);
 			
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			
 			String fileLoca = sdf.format(date); //폴더 위치
 			
-			File folder = new File(APP_CONSTANT.UPLOAD_PATH_ACADEMY + "\\" + fileLoca); //폴더를 만들위치
+			File folder = new File(APP_CONSTANT.UPLOAD_PATH + "\\" + fileLoca); //폴더를 만들위치
 			
 			if(!folder.exists()) {
 				folder.mkdir(); // 폴더 생성
@@ -182,11 +188,11 @@ public class SnsBoardController {
 			String uuids = uuid.toString().replaceAll("-", ""); //가짜 파일명 
 			String fileName = uuids + fileExtention;
 			
-			System.out.println("폴더 위치 : " + fileLoca);
-			System.out.println("파일명 : " + fileRealName);
-			System.out.println("사이즈 : " + size);
-			System.out.println("업로드 경로 : " + uploadPath);
-			System.out.println("업로드 파일명 : " + fileName);
+//			System.out.println("폴더 위치 : " + fileLoca);
+//			System.out.println("파일명 : " + fileRealName);
+//			System.out.println("사이즈 : " + size);
+//			System.out.println("업로드 경로 : " + uploadPath);
+//			System.out.println("업로드 파일명 : " + fileName);
 			
 			File saveFile = new File(uploadPath + "\\" + fileName);
 			file.transferTo(saveFile); //파일 쓰기
@@ -194,6 +200,7 @@ public class SnsBoardController {
 			//DB작업
 			SnsBoardVO vo = new SnsBoardVO(0, writer, content, uploadPath, fileLoca, fileName, fileRealName, null);
 			int result = snsBoardService.insert(vo);
+//			System.out.println("result : " + result);
 			
 			if(result == 1) {
 				return "success insert";
@@ -208,5 +215,87 @@ public class SnsBoardController {
 			return "fail";
 		}
 
+	}
+	
+	//210707
+	@ResponseBody
+	@RequestMapping(value="/getList", method = RequestMethod.GET)
+	public ArrayList<SnsBoardVO> getList() {
+		
+		ArrayList<SnsBoardVO> list = snsBoardService.getList();
+		
+		return list;
+	}
+	
+	// 이미지를 절대 주소로 보내면 에러가 뜨니까
+	// 컨트롤러에서 이미지데이터를 반환하는 요청을 처리해야한다
+	// PathVariable은 특수문자를 잘라버려서 특수문자도 받게 처리해야한다 :.+
+//	@ResponseBody
+//	@RequestMapping(value="/view/{fileLoca}/{fileName:.+}")
+//	public byte[] view(@PathVariable("fileLoca") String fileLoca,
+//					   @PathVariable("fileName") String fileName) {
+//		
+//		byte[] result = null;
+//		
+//		try {
+//			// 파일 데이터를 바이트데이터로 변환해서 반환
+//			File file = new File(APP_CONSTANT.UPLOAD_PATH + "\\" + fileLoca + "\\" + fileName);
+//			result = FileCopyUtils.copyToByteArray(file);
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		return result;
+//	}
+	
+	@ResponseBody
+	@RequestMapping(value="/view/{fileLoca}/{fileName:.+}")
+	public ResponseEntity<byte[]> view(@PathVariable("fileLoca") String fileLoca,
+					   @PathVariable("fileName") String fileName) {
+		
+		ResponseEntity<byte[]> result = null;
+		
+		try {
+		
+			// 반환은 위랑 같지만 보내는 타입에 대한 문서를 정확히 적어서 보낸 거다
+			// 파일 데이터를 바이트데이터로 변환해서 반환
+			File file = new File(APP_CONSTANT.UPLOAD_PATH + "\\" + fileLoca + "\\" + fileName);
+			
+			// 반환형 헤더 객체
+			HttpHeaders header = new HttpHeaders();
+			header.add("Content-type", Files.probeContentType(file.toPath())); //path 타입으로 반환
+			
+			result = new ResponseEntity<byte[]>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/download/{fileLoca}/{fileName:.+}")
+	public ResponseEntity<byte[]> download(@PathVariable("fileLoca") String fileLoca,
+										   @PathVariable("fileName") String fileName) {
+		
+		ResponseEntity<byte[]> result = null;
+		
+		try {
+			
+			File file = new File(APP_CONSTANT.UPLOAD_PATH + "\\" + fileLoca + "\\" + fileName);
+			
+			//반환할 헤더 객체 (다운로드 형식으로 속성을 추가)
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Content-Disposition", "attachment; filename=" + fileName);
+			
+			result = new ResponseEntity<byte[]>(FileCopyUtils.copyToByteArray(file), headers, HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 }

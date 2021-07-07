@@ -8,4 +8,8 @@
 	  	insert into SNSBOARD(BNO, WRITER, CONTENT, UPLOADPATH, FILELOCA, FILENAME, FILEREALNAME)
 	  	values (SNSBOARD_SEQ.nextval, #{writer}, #{content}, #{uploadPath}, #{fileLoca}, #{fileName}, #{fileRealName})  	
   	</insert>
+  	
+  	<select id="getList" resultType="snsBoardVO">
+  		select * from SNSBOARD order by bno desc
+  	</select>
   </mapper>
