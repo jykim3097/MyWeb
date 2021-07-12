@@ -15,8 +15,7 @@
 
 	<!-- 2. 데이터베이스 접속 정보 -->
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
-		<property name="driverClassName"
-			value="${ds.driverClassName}" />
+		<property name="driverClassName" value="${ds.driverClassName}" />
 		<property name="jdbcUrl" value="${ds.jdbcUrl}" />
 		<property name="username" value="${ds.username}" />
 		<property name="password" value="${ds.password}" />

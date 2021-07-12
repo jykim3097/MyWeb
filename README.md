@@ -1,6 +1,27 @@
 # Spring
 spring framework ⚙
 
+## 목차
+* [여는 말](#여는 말)
+* [개요](#개요)
+	* [스프링 프레임워크란?](#스프링 프레임워크란?)
+	* [스프링 프레임워크의 특징](#스프링 프레임워크의 특징)
+* [DI와 IoC](#DI와 IoC)
+	* [의존 객체 자동 주입](#의존 객체 자동 주입)
+* [스프링 MVC 프레임워크의 동작 구조](#동작 구조)
+* [구동 과정 정리](#구동 과정 정리)
+* [스프링 조립](#스프링 조립)
+	* [JSP에 Maven을 이용해 스프링 조립하기](#JSP에 Maven을 이용해 스프링 조립하기)
+* [스프링 MVC Controller 객체 구현](#스프링 MVC Controller 객체 구현(5강))
+	* [@Controller](#@Controller)
+	* [RequestMapping을 이용한 url 맵핑](#RequestMapping을 이용한 url 맵핑)
+		* [Controller의 화면 처리](#Controller의 화면 처리)
+* [요청 파라미터를 통한 HTTP 전송 정보 얻기](#요청 파라미터를 통한 HTTP 전송 정보 얻기)
+	* [전통적 방식](#전통적 방식)
+	* [어노테이션 사용](#어노테이션 사용)
+	* [커멘드 객체 사용](#커멘드 객체 사용)
+* [Model 전달자](#Model 전달자)
+
 21.06.11   
 ## 여는 말
 ### 스프링 웹 프로젝트는 두 가지 방식
@@ -16,7 +37,7 @@ spring framework ⚙
 * 두개가 완전히 다른 건 아니다
 
 ## 개요
-### 스프링 프레임워크란? 
+### 스프링 프레임워크란?
 * 프레임워크 : 뼈대를 이루는 코드 묶음
 * 방향성을 제시하고, 원하는 기능을 빠르게 만들 수 있게 한다
 * 라이브러리랑 다르다, 라이브러리가 모인 전체적인 큰 묶음이 프레임워크
@@ -48,6 +69,7 @@ spring framework ⚙
 
 #### 5. Model2 방식의 MVC Framework를 지원
 
+
 ### 스프링 프레임워크 모듈
  
 ### 스프링 컨테이너 (IoC) - Core Container
@@ -75,6 +97,8 @@ spring framework ⚙
 * prototype : 하나의 bean에 대해 여러개의 객체가 존재할 수 있다, 싱글톤과 반대되는 개념
 	* 설정 파일에서 bean을 정의할 때 scope 속성을 명시해주어야 한다
 	* <bean id="id" class="class" scope="prototype" />
+
+
 
 ## DI와 IoC
 * 스프링은 DI와 IoC를 강력하게 지원하는 프레임워크이다
@@ -193,49 +217,249 @@ public String success(Model model) {
 	return "success";
 }
 ```
+* '/success' 요청이 발생하면 success() 메서드 실행
+* return은 view로 사용되는 JSP 파일 이름
 * Model 객체는 success 메서드 실행 후 view(jsp)에서 활용될 객체를 담고 있다
 
 ### View
 * 사용자 응답 브라우저
 * controller의 메서드에서 반환되는 값
 * 이 값을 viewResolver가 jsp파일로 조립한다
-* Url 맵핑값(클라이언트 요청 정보)에 해당하는 jsp 파일 
+* url 맵핑값(클라이언트 요청 정보)에 해당하는 jsp 파일 
 
-## 구동 과정 정리
+### 구동 과정 정리
 1. 클라이언트가 페이지를 요청한다
 2. web.xml에서 dispatcherServlet이 요청을 받는다 (Handler)
-3. servlet-context.xml이 요청에 대한 컨트롤러를 검색한다
-	* Handler Mapping으로 컨트롤러를 검색한다
-4. 컨트롤러 요청 처리 후 이름을 리턴한다
+3. servlet-context.xml에서 HandlerMapping으로 **요청에 대한 컨트롤러를 검색**한다
+4. 컨트롤러 요청 처리 후 **이름을 리턴**한다
 5. view resolver가 받은 이름을 찾아서 처리한다
 
 21.06.15
-* mvc 방식은 기본적으로 주소가 요청으로 남는 포워드 방식을 사용하기 때문에 리다이렉트 방식도 사용할 수 있다.
-
-### 요청 파라미터(request)
-* 스프링은 사용하고자하는 객체가 있다면 메서드의 매개변수에 처리한다 (의존성 주입)
-	* 사용하고자하는 객체를 매개변수에 선언해라
-
-* 어노테이션 처리
-	* 단일 값을 처리할 때 사용
-	* 값이 없으면 에러 발생
-		1. 값을 1개 이상 선택하도록  처리
-		2. required = false로 설정
-
-* 커멘드객체(클래스)를 통한 처리
-	* 들어오는 여러 객체를 한 번에 맵핑시켜 받는다
-
-* 사소한 요청도 다 컨트롤러에 만든다고 생각하면 된다
-
-
 ## 스프링 조립
-### JSP에 빌드 툴을 사용하는 방법
+### JSP에 빌드 툴을 사용하는 대표적인 2가지 방법
 1. Maven을 사용하는 방법
 2. Gradle을 사용하는 방법
 
-### 스프링 설정파일을 사용하는 방법
+### 스프링 설정파일을 사용하는 대표적인 2가지 방법
 1. xml을 이용하는 방법
 2. 자바 코드를 이용하는 방법
+
+### JSP에 Maven을 이용해 스프링 조립하기
+* JSP에 Maven을 붙이고, Maven을 통해 스프링 프레임워크를 추가하는 방법이다
+1. pom.xml에 [Maven Repository](https://mvnrepository.com/)에서 필요한 라이브러리를 복사해 추가한다.
+	* 자바 버전, 스프링 버전 변수 선언
+	* dependencies 태그 선언
+	* 스프링 코어 다운
+	* 스프링 webMVC 다운
+	* web.xml에 스프링 servlet 설정(프로젝트 최초 가동 시 시작)
+	* servlet.xml (서블릿 설정)
+
+* spring-servlet.xml 설정에 추가할 것
+```java
+// 어노테이션 활성화
+<mvc:annotation-driven />
+
+// 스프링만의 어노테이션 활성화 - package 속성에 기술된 경로의 파일을 읽어서 빈으로 생성한다
+<context:component-scan base-package="com.simple.controller" />
+
+// 뷰 리졸버 설정
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/views/" />
+	<property name="suffix" value=".jsp" />
+</bean>
+
+// 정적 자원 맵핑 설정
+<mvc:resources mapping="/resource/**" location="/resource/" />
+```
+
+## 스프링 MVC Controller 객체 구현(5강)
+### 1. @Controller
+* <context:component-scan base-package="com.simple.controller" />
+* base-package에 쓰인 패키지를 스캔해 Controller 어노테이션이 붙은 클래스를 빈으로 생성한다.
+
+### 2. RequestMapping을 이용한 url 맵핑
+* 메서드에 @RequestMapping 적용
+* 예를 들어 http://localhost:8181/project/**memberJoin** 이라는 url이 있으면 memberJoin()이라는 메서드를 실행한다
+* 전송 방식에 따라 value에 메서드를 넣고, method에 전송 방식을 작성한다
+```
+<form action="/member/memberJoin" method="post">
+
+@RequestMapping(value="/memberJoin", method=RequestMapping.POST)
+public String memberJoing(Model model, HttpServletRequest request) {
+	return "memberJoinOk";
+}
+```
+
+#### Controller의 화면 처리
+* void 메서드의 페이지 이동
+	* 일반적인 경우 맵핑 url의 경로를 파일 이름으로 사용한다.
+	* 화면으로 값(객체 등)을 보내주는 경우에 사용하는 듯
+```
+@RequestMapping("/freeDetail")
+public void getDetail(@RequestParam("bno") int bno, Model model) {
+
+	FreeBoardVO vo = freeBoardService.getDetail(bno);
+	model.addAttribute("vo", vo);
+}
+```
+
+* String 메서드의 페이지 이동
+	* view 폴더 아래의 jsp 파일로 이동된다
+	* 이동 경로 앞에 redirect: 키워드를 통해 페이지 이동이 가능하다.
+```java
+// 일반적인 페이지 이동
+@RequestMapping("/freeRegist")
+public String freeRegist() {
+
+	return "freeBoard/freeRegist";
+}
+```
+
+* redirect 페이지 이동
+	* redirect:/ 라는 리다이렉트 키워드를 이용하면 다시 브라우저로 요청한다
+	* 즉 다시 Controller로 요청을 보내는 것이다
+	* mvc 방식은 기본적으로 주소가 요청으로 남는 포워드 방식을 사용하기 때문에 리다이렉트 방식도 사용할 수 있다.
+```java
+// 리다이렉트를 통한 페이지 이동
+@RequestMapping("/registForm")
+public String registForm(FreeBoardVO vo, RedirectAttributes RA) {
+	
+	int result = freeBoardService.regist(vo); // 성공 시 1, 실패 시 0 반환
+	
+	if(result == 1) RA.addFlashAttribute("msg", "등록되었습니다.");
+	else RA.addFlashAttribute("msg", "등록하지 못했습니다. 다시 시도하세요");
+
+	return "redirect:/freeBoard/freeList";
+}
+```
+
+* ResponseBody
+	* 이 태그가 붙은 메서드의 리턴 값은 뷰리졸버로 전달되지 않고, **해당 메서드를 호출한 곳으로 결과를 반환**한다.
+	* 비동기 통신에서 이용된다.
+
+### 요청 파라미터를 통한 HTTP 전송 정보 얻기
+* 메서드에서 파라미터 값을 처리하는 3가지 방법
+
+#### 전통적 방식
+* 스프링은 사용하고자하는 객체가 있다면 메서드의 매개변수에 처리한다 (의존성 주입)
+	* 사용하고자하는 객체를 매개변수에 선언해라
+```
+@RequestMapping("/param") 
+public String param(HttpServletRequest request) {
+	String name = request.getParameter("name");
+} 
+```
+
+#### 어노테이션 사용
+* 단일 값을 얻을 때 사용한다
+* 값이 없으면 에러가 발생하기 때문에(NullPointError) 추가 작업을 해줘야 한다
+	* 값을 1개 이상 선택하도록 처리하거나 required 속성을 이용한다
+* 어노테이션의 추가 속성
+	* defaultValue : required 지정 시 기본값을 지정한다
+	* required : 해당 파라미터가 필수가 아닌 경우 지정한다 (**required=false**)
+```
+@RequestMapping("/param")
+public String param(@RequestParam("name") String name) {
+	// 폼 태그의 name 값을 파라미터로 받는다
+}
+
+// 어노테이션의 추가 속성
+@RequestParam(value = "파라미터 값", required = false, defaultValue = "기본 값")
+```
+
+#### 커멘드 객체 사용
+* 폼 태그의 값을 받아 처리할 수 있는 class를 생성해 사용한다
+* 이때 변수명을 폼 태그의 이름과 똑같이 작성한다
+* 객체에 동일한 setter가 있다면 자동으로 값이 저장된다
+```
+@RequestMapping("/param")
+public String param(MemberVO vo) {}
+```
+   
+21.06.16
+### Model 전달자
+* 화면에 데이터를 전달하기 위한 객체
+
+#### 1. Model 객체
+* Model과 ModelMap과 같은 기능을 한다
+	* Model은 인터페이스이고, ModelMap은 구현체이다.
+* Model 타입을 메서드의 파라미터로 주입하면, view로 전달할 때 데이터를 담아서 보낼 수 있다.
+* addAttribute() 메서드를 사용한다.
+* request.setAttribute와 유사한 역할을 한다.
+```java
+@RequestMapping("/res_ex02")
+public String res_ex02(Model model) {
+	
+	// 데이터를 실어줌
+	model.addAttribute("serverTime", new Date());
+	model.addAttribute("name", "홍길동");
+	
+	// 이렇게 포워드로 보내기 때문에 데이터를 태워서 보낼 수 있다
+	return "response/res_ex02";
+}
+```
+
+#### 2. ModelAndView 객체
+* 페이지와 데이터를 동시에 지정한다.
+* 데이터는 addObject(키, 값)을 이용하고,
+* 페이지(화면) 정보는 setViewName(페이지 경로)를 이용한다
+```java
+@RequestMapping("/res_ex03")
+public ModelAndView res_ex03() {
+	
+	ModelAndView mv = new ModelAndView();
+	
+	mv.addObject("serverTime", new Date());
+	mv.setViewName("response/res_ex03");
+	
+	return mv; // dispatcherServlet으로 반환
+}
+```
+
+#### 3. @ModelAttribute
+* 전달받은 파라미터를 Model에 담아서 화면까지 전달할 때 사용하는 어노테이션
+* requestParam과 attribute가 합쳐진 개념
+* 커맨드 객체의 이름을 변경할 수 있고, 이를 view에서도 객체를 참조할 때 사용한다
+```
+@RequestMapping("/res_ex05")
+public String res_ex05(@ModelAttribute("**info**") ReqVO **vo**) {
+	
+	System.out.println(vo.toString());
+	
+	return "response/res_ex05";
+}
+```
+
+#### 4. RedirectAttribute 객체
+* 리다이렉트 이동 시 파라미터 값을 전달하는 방법
+* addFlashAttribute() 메서드 이용
+```
+@RequestMapping("/login")
+public String login(ReqVO vo, RedirectAttributes RA) {
+	
+	if(vo.getId().equals(vo.getPw())) { // 성공
+		return "response/res_login_ok";
+	} else { // 실패
+		RA.addFlashAttribute("msg", "아이디, 비밀번호를 확인하세요");
+		return "redirect:/response/res_redirect"; // 다시 로그인 화면으로
+	}		
+}
+```
+* forward는 url 주소를 바꾸지 않기 때문에 주소를 처음으로 되돌려 사용하려면 redirect를 사용한다.
+
+#### 5. EL 
+* 컨트롤러에서 비즈니스 로직을 실행한 결과를 JSP 문서 내에서 출력하기 위한 용도로 사용한다.
+* EL의 표현 방법은 ${표현식}
+* 표현식에는 Scope 변수를 이용해 Scope 변수에 바인딩되어 있는 객체의 메서드를 호출
+	* Scope 변수는 request, session, application을 의미한다
+	* 만약 request 객체에 회원 객체 member가 바인딩되어 있을 경우 회원의 이름(name)을 출력하기 위해
+	* ${member.name} 또는 ${member.["name"]}을 이용한다
+
+#### 6. JSTL
+* 표준화된 태그 라이브러리를 통해 웹 응용프로그램을 더 편리하게 개발할 수 있다.
+* Maven pom.xml에 추가되어 있어 다운로드하지 않아도 사용할 수 있다.
+* 사용하고자 하는 jsp 파일에 아래 코드만 추가하면 된다.
+	* <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 21.06.17    
 # 7강 스프링 MVC 웹 서비스
