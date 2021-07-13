@@ -24,8 +24,8 @@ spring framework ⚙
 * [스프링 MVC 웹서비스](#스프링-MVC-웹서비스)
 * [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스(JDBC))
 	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
-
-21.06.11   
+    
+21.06.11
 ## 여는 말
 ### 스프링 웹 프로젝트는 두 가지 방식
 * 참고) https://developsd.tistory.com/68
@@ -102,7 +102,6 @@ spring framework ⚙
 	* <bean id="id" class="class" scope="prototype" />
 
 
-
 ## DI와 IoC
 * 스프링은 DI와 IoC를 강력하게 지원하는 프레임워크이다
 * 그래서 스프링을 DI Framework 또는 IoC Framework라고 부른다
@@ -113,7 +112,7 @@ spring framework ⚙
 
 ### DI 설정 방법
 * 2가지 의존성 주입 방법
-```java
+```xml
 // 1. 생성자를 통한 의존성 주입
 <bean id="chef" class="ex02.Chef" />
 
@@ -133,7 +132,8 @@ spring framework ⚙
 	<property name="dev" ref="dev" />
 </bean> 
 ```
-21.06.14   
+   
+21.06.14
 ### 의존 객체 자동 주입
 * 스프링 컨테이너가 자동으로 의존 대상 객체를 찾아서 의존 대상 객체가 필요한 객체에 주입해 주는 기능
 * 어노테이션을 이용해 쉽게 구현할 수 있다
@@ -236,7 +236,7 @@ public String success(Model model) {
 3. servlet-context.xml에서 HandlerMapping으로 **요청에 대한 컨트롤러를 검색**한다
 4. 컨트롤러 요청 처리 후 **이름을 리턴**한다
 5. view resolver가 받은 이름을 찾아서 처리한다
-
+    
 21.06.15
 ## 스프링 조립
 ### JSP에 빌드 툴을 사용하는 대표적인 2가지 방법
@@ -258,7 +258,7 @@ public String success(Model model) {
 	* servlet.xml (서블릿 설정)
 
 * spring-servlet.xml 설정에 추가할 것
-```java
+```xml
 // 어노테이션 활성화
 <mvc:annotation-driven />
 
@@ -284,9 +284,10 @@ public String success(Model model) {
 * 메서드에 @RequestMapping 적용
 * 예를 들어 http://localhost:8181/project/**memberJoin** 이라는 url이 있으면 memberJoin()이라는 메서드를 실행한다
 * 전송 방식에 따라 value에 메서드를 넣고, method에 전송 방식을 작성한다
-```
+```jsp
 <form action="/member/memberJoin" method="post">
-
+```
+```java
 @RequestMapping(value="/memberJoin", method=RequestMapping.POST)
 public String memberJoing(Model model, HttpServletRequest request) {
 	return "memberJoinOk";
@@ -297,7 +298,7 @@ public String memberJoing(Model model, HttpServletRequest request) {
 * void 메서드의 페이지 이동
 	* 일반적인 경우 맵핑 url의 경로를 파일 이름으로 사용한다.
 	* 화면으로 값(객체 등)을 보내주는 경우에 사용하는 듯
-```
+```java
 @RequestMapping("/freeDetail")
 public void getDetail(@RequestParam("bno") int bno, Model model) {
 
@@ -346,7 +347,7 @@ public String registForm(FreeBoardVO vo, RedirectAttributes RA) {
 #### 전통적 방식
 * 스프링은 사용하고자하는 객체가 있다면 메서드의 매개변수에 처리한다 (의존성 주입)
 	* 사용하고자하는 객체를 매개변수에 선언해라
-```
+```java
 @RequestMapping("/param") 
 public String param(HttpServletRequest request) {
 	String name = request.getParameter("name");
@@ -360,7 +361,7 @@ public String param(HttpServletRequest request) {
 * 어노테이션의 추가 속성
 	* defaultValue : required 지정 시 기본값을 지정한다
 	* required : 해당 파라미터가 필수가 아닌 경우 지정한다 (**required=false**)
-```
+```java
 @RequestMapping("/param")
 public String param(@RequestParam("name") String name) {
 	// 폼 태그의 name 값을 파라미터로 받는다
@@ -374,7 +375,7 @@ public String param(@RequestParam("name") String name) {
 * 폼 태그의 값을 받아 처리할 수 있는 class를 생성해 사용한다
 * 이때 변수명을 폼 태그의 이름과 똑같이 작성한다
 * 객체에 동일한 setter가 있다면 자동으로 값이 저장된다
-```
+```java
 @RequestMapping("/param")
 public String param(MemberVO vo) {}
 ```
@@ -423,7 +424,7 @@ public ModelAndView res_ex03() {
 * 전달받은 파라미터를 Model에 담아서 화면까지 전달할 때 사용하는 어노테이션
 * requestParam과 attribute가 합쳐진 개념
 * 커맨드 객체의 이름을 변경할 수 있고, 이를 view에서도 객체를 참조할 때 사용한다
-```
+```java
 @RequestMapping("/res_ex05")
 public String res_ex05(@ModelAttribute("**info**") ReqVO **vo**) {
 	
@@ -436,7 +437,7 @@ public String res_ex05(@ModelAttribute("**info**") ReqVO **vo**) {
 #### 4. RedirectAttribute 객체
 * 리다이렉트 이동 시 파라미터 값을 전달하는 방법
 * addFlashAttribute() 메서드 이용
-```
+```java
 @RequestMapping("/login")
 public String login(ReqVO vo, RedirectAttributes RA) {
 	
@@ -629,8 +630,8 @@ BoardDAO dao;
 # local oracle
 ds.driverClassName=oracle.jdbc.driver.OracleDriver
 ds.jdbcUrl=jdbc:oracle:thin:@localhost:1521/XEPDB1
-ds.username=spring
-ds.password=spring
+ds.username=username
+ds.password=pw
 ```
 
 ### 3. spring-test 라이브러리 사용
@@ -645,49 +646,237 @@ ds.password=spring
      
 21.06.18
 ## MyBatis
+### 1. MyBatis
 * 개발자가 지정한 SQL, 고급 매핑을 지원하는 프레임워크
 * JDBC 코드와 파라미터, 결과 맵핑을 대신한다
-	* JDBC 코드를 걷어내 깔끔한 소스코드를 유지할 수 있다.
+* 복잡한 JDBC 코드를 걷어내 깔끔한 소스코드를 유지할 수 있다.
+	* 여기엔 없지만 JDBC Template을 이용하는 코드를 대신해 깔끔하게 작성할 수 있다
 * DAO 계층을 대신한다
 	* 기존 DAO의 interface의 구현 클래스를 xml로 대신한다 (mapper.xml)
-* 전통적 JDBC 프로그래밍에 비해
-	* **자동으로** Connection을 생성한다
-	* **자동으로** Close()를 처리한다
-	* **자동으로** PrepareStatement를 처리한다.
-	* **자동으로** 리턴타입으로 ResultSet을 처리한다
-	* #{name}을 통해 '?'를 처리한다
+    
+![mybatis](./url/mybatis.png)
+    
+#### 전통적 JDBC 프로그래밍에 비해
+* **자동으로** Connection을 생성한다
+* **자동으로** Close()를 처리한다
+* **자동으로** PrepareStatement를 처리한다.
+* **자동으로** 리턴타입으로 ResultSet을 처리한다
+* #{name}을 통해 '?'를 처리한다
 
-### SqlSessionFactory
-* **myBatis 핵심 객체**
-* spring-jdbc 라이브러리를 꼭 추가해야한다.
-* 사용방법
-	* 스프링 컨테이너에 SqlSessionFactoryBean 클래스를 sqlSessionFactory 이름으로 생성한다
-	* 생성한 dataSource를 주입한다. (ref 속성 사용)
-	* mybatis-spring:scan을 추가해 해당 패키지를 스캔해 xml 파일을 객체로 생성한다
-* mapper.xml 에서 반환 타입을 추가할 때 패키지 alias를 만들어 관리할 수 있다. 
-* configuration 파일을 만들어 저장하고 스프링 컨테이너에 파일 경로를 추가한다.
-	* sqlSessionFactory 의 property로 추가한다
+### 2. Mybatis 추가하기
+#### pom.xml
+* 라이브러리를 추가한다
+* spring-jdbc 라이브러리가 기본적으로 있어야 한다.
+```xml
+<!-- mybatis -->
+<dependency>
+	<groupId>org.mybatis</groupId>
+	<artifactId>mybatis</artifactId>
+	<version>3.4.6</version>
+</dependency>
 
-### MyBatis Mapper XML의 주요 속성
+<!-- mybatis-spring -->
+<dependency>
+	<groupId>org.mybatis</groupId>
+	<artifactId>mybatis-spring</artifactId>
+	<version>1.3.2</version>
+</dependency>
+```
+
+#### root-context.xml
+* namespace에서 mybatis-spring 추가
+* SessionFactory bean 추가
+```xml
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="dataSource" ref="dataSource" />
+	<property name="configLocation" value="classpath:/mybatis-config/mybatis-config.xml" />
+</bean>
+	
+<mybatis-spring:scan base-package="com.team404.*.mapper"/>
+```
+* sqlSessionFactory라는 이름으로 컨테이너에 객체를 생성한다.
+* 앞서 생성한 dataSource를 주입한다
+* configLocation은 마이바티스 설정 속성으로, 사용할 객체 닉네임을 설정해 간단하게 사용할 수 있게 한다
+	* mapper.xml 에서 반환 타입을 추가할 때 패키지 alias를 만들어 관리할 수 있다.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+		<typeAliases>
+			<typeAlias type="com.team404.command.UserVO" alias="UserVO" />
+		</typeAliases>
+	</configuration>
+```
+* mybatis-spring:scan은 해당 패키지를 스캔해 xml 파일을 객체로 생성한다
+
+### MyBatis Spring XML
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+  <mapper **namespace**="com.team404.user.mapper.UserMapper">
+  	<select **id**="idCheck" **resultType**="int">
+  		select count(*) as result
+  		from users
+  		where userId = #{userId}
+  	</select>
+```
 
 #### mapper 태그
 * namespace : mapper 인터페이스의 전체 경로 작성
 
 #### select 태그
-* id : 인터페이스 메서드명과 똑같이 작성, 메서드를 찾기 위한 구분자
-* parameterType : 패키지 경로를 포함한 클래스명을 작성한다.
-* resultType : 결과 반환 타입 작성
+* id : 인터페이스 추상메서드명과 똑같이 작성, 메서드를 찾기 위한 구분자
+* resultType : 인터페이스 추상메서드의 반환 타입 작성
 	* 패키지 경로를 포함한 전체 클래스명을 적는다
 	* config 파일을 생성했다면 alias 명을 작성할 수 있다
+* parameterType : 패키지 경로를 포함한 클래스명을 작성한다.
 * resultMap : 외부 map 타입을 이용한 반환 타입
 	* 조인이 걸렸을 때 가지고 나갈 수 있다.
 
 #### insert, update, delete 태그
 * id
-* parameterType
+* parameterType : 구문에 전달될 파라미터 타입
+
+#### sql 구문에서의 값 전달 - #{userId}
 
 #### cdata 속성
 * mybatis가 <>을 태그로 인식하기 때문에 이를 문자열로 인식시키게 한다
+```xml
+<![CDATA[
+	코드
+]]>
+```
+
+## 프로젝트 준비사항
+### 1. 롬복
+* getter, setter, toString(), 생성자를 빠르게 만들 수 있는 라이브러리
+* jar 파일을 실행하고 sts를 재시작하고
+* pom.xml에 라이브러리를 추가하고 메이븐 업데이트를 실행한다
+
+### 2. 타일즈 뷰 템플릿
+* JSP include 방식 vs resolver view tiles 셋팅
+* tiles는 웹 페이지의 상단이나 하단 메뉴와 같이 반복적으로 사용되는 부분들에 대한 코드를 분리해 한 곳에서 관리를 가능하게 하는 프레임워크
+#### 1) pom.xml 설정
+* 라이브러리 다운 - tiles를 통한 공통 뷰 모듈 
+```xml
+<dependency>
+	<groupId>org.apache.tiles</groupId>
+	<artifactId>tiles-jsp</artifactId>
+	<version>3.0.8</version>
+</dependency>
+
+<dependency>
+	<groupId>org.apache.tiles</groupId>
+	<artifactId>tiles-servlet</artifactId>
+	<version>3.0.8</version>
+</dependency>
+
+<dependency>
+	<groupId>org.apache.tiles</groupId>
+	<artifactId>tiles-extras</artifactId>
+	<version>3.0.8</version>
+</dependency>
+```
+
+#### 2) servlet-context.xml 설정
+* tiles 템플릿의 위치를 선언한다
+* 동작되기 전에 실행되어야 하므로 resourse 코드 다음, 리졸버뷰 이전에 작성한다.
+```xml
+<!-- tiles 설정 파일의 위치 선언 -->
+<beans:bean class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+	<beans:property name="definitions">
+		<beans:list>
+			<beans:value>/WEB-INF/tiles/tiles.xml</beans:value>
+		</beans:list>
+	</beans:property>
+</beans:bean>
+```
+
+* 다중 뷰 리졸버를 선언하기 위해 UrlBasedViewResolver를 이용하고(부모 클래스)
+* TilesView를 넣고 order를 1로 선언한다
+* 기존에 있던 리졸버뷰의 순서(order)를 2로 선언한다
+```xml
+<!-- 첫번째로 동작할 타일즈뷰 템플릿을 선언 -->
+<beans:bean class="org.springframework.web.servlet.view.**UrlBasedViewResolver**">
+	<beans:property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView" />
+	<beans:property name="order" value="1" />
+</beans:bean>
+
+<!-- view resolver, 타일즈뷰 설정, 뷰리졸버를 두번째로 동작하도록 처리 -->
+<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<beans:property name="prefix" value="/WEB-INF/views/" />
+	<beans:property name="suffix" value=".jsp" />
+	<beans:property name="order" value="2" />
+</beans:bean>
+```
+
+#### 3) tiles.xml 작성
+* 타일즈 파일이 가져야하는 레이아웃 형식을 정의한다.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+  "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+  "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+
+  <tiles-definitions>
+  	<definition name="templateCommon" template="/WEB-INF/tiles/templateCommon.jsp">
+  		<put-attribute name="header" value="/WEB-INF/tiles/header.jsp" />
+  		<put-attribute name="body" value="" />
+  		<put-attribute name="footer" value="/WEB-INF/tiles/footer.jsp" />
+  	</definition>
+  	
+  	<!-- home.jsp -->
+  	<definition name="*" extends="templateCommon">
+  		<put-attribute name="body" value="/WEB-INF/views/{1}.jsp" />
+  	</definition>
+  	
+  	<definition name="*/*" extends="templateCommon">
+  		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}.jsp" />
+  	</definition>
+  </tiles-definitions>
+```
+
+#### 4) template jsp 작성
+* <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>를 꼭 넣어줘야 한다
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		
+		<!-- 부트스트랩 css파일 참조 -->
+	    	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bootstrap.min.css">
+	    	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bootstrap-theme.min.css">
+	    
+	    	<!-- 부트스트랩 js파일 참조 -->
+	    	<script src="${pageContext.request.contextPath}/resources/js/bootstrap.min.js"></script>
+	
+	    	<!-- custom css -->
+	    	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/product.css">
+	    	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/re.css">
+	
+	    	<!-- custom js -->
+	    	<script src="${pageContext.request.contextPath}/resources/js/main.js"></script>
+	
+	</head>
+	<body>
+		<tiles:insertAttribute name="header" />
+		<tiles:insertAttribute name="body" />
+		<tiles:insertAttribute name="footer" />
+	</body>
+</html>
+```
 
 
 21.07.05    
