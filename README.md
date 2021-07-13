@@ -23,7 +23,7 @@ spring framework ⚙
 	* [Model 전달자](#Model-전달자)
 * [스프링 MVC 웹서비스](#스프링-MVC-웹서비스)
 * [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스(JDBC))
-	*[Connection Pool과 DataSource](#Connection-Pool과-DataSource)
+	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
 
 21.06.11   
 ## 여는 말
@@ -468,6 +468,7 @@ public String login(ReqVO vo, RedirectAttributes RA) {
 ## 스프링 MVC 웹서비스
 ### 1. 어플리케이션 구조
 * 웹 어플리케이션의 일반적인 프로그램 구조
+    
 ![web](./img/web.png)
 
 ### 2. 서비스 계층과 DAO 계층
@@ -518,13 +519,13 @@ BoardDAO dao;
 ## 스프링 MVC 웹 서비스(JDBC)
 
 ### 1. JDBC
-![jdbc](./img/jdbc.PNG)
+![jdbc](./img/jdbc.png)
 
 ### 전통적인 JDBC 프로그래밍
-#### 1. Connection 객체 생성 
-#### 2. PrepareStatement 객체 생성 
-#### 3. SQL문 실행 
-#### 4. ResultSet 객체 생성 결과 처리
+1. Connection 객체 생성 
+2. PrepareStatement 객체 생성 
+3. SQL문 실행 
+4. ResultSet 객체 생성 결과 처리
 * 반복적인 작업이 계속 되는 단점이 있다
 
 ### 2. Spring JDBC
@@ -586,7 +587,7 @@ BoardDAO dao;
 * DB 연결은 root-context에서 작업한다
 	* web.xml에 보면 가장 위에 작성되어있다
 * DataSource와 HikariCP를 빈으로 등록하기 위해 namespace에서 beans와 jdbc를 추가한다
-```
+```xml
 <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 	<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
 	<!-- <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" /> -->
@@ -595,7 +596,7 @@ BoardDAO dao;
 	<property name="password" value="pw" /> 
 </bean>
 
-```
+```xml
 * hikariConfig 이름으로 컨테이너에 객체를 생성하고 setter 주입으로 name에 value를 저장한다
 
 ```
@@ -608,7 +609,7 @@ BoardDAO dao;
 
 #### 위의 코드를 외부 설정파일로 적용하는 방법
 * root-context.xml
-```
+```xml
 <bean class="org.springframework.beans.factory.config.**PropertyPlaceholderConfigurer**">
 	<property name="location" value="**classpath:/db-config/hikari.properties**" />
 </bean>
@@ -641,8 +642,8 @@ ds.password=spring
 # 코딩팁!
 * DB가 있어야 다른 것도 연결할 수 있기 때문에 DB 연결 작업은 프로젝트 초기에 진행한다!
 	* 디스패쳐서블릿이 연결되기 전에 처리되어야하는 작업이기 때문 
-
-21.06.18   
+     
+21.06.18
 ## MyBatis
 * 개발자가 지정한 SQL, 고급 매핑을 지원하는 프레임워크
 * JDBC 코드와 파라미터, 결과 맵핑을 대신한다
