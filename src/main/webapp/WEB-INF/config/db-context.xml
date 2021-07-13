@@ -12,7 +12,7 @@
 		<property name="location"
 			value="classpath:/db-config/hikari.properties" />
 	</bean>
-
+	
 	<!-- 2. 데이터베이스 접속 정보 -->
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 		<property name="driverClassName" value="${ds.driverClassName}" />

@@ -16,11 +16,14 @@ spring framework ⚙
 	* [@Controller](#Controller)
 	* [RequestMapping을 이용한 url 맵핑](#2-RequestMapping을-이용한-url-맵핑)
 		* [Controller의 화면 처리](#Controller의-화면-처리)
-* [요청 파라미터를 통한 HTTP 전송 정보 얻기](#요청-파라미터를-통한-HTTP-전송-정보-얻기)
-	* [전통적 방식](#전통적-방식)
-	* [어노테이션 사용](#어노테이션-사용)
-	* [커멘드 객체 사용](#커멘드-객체-사용)
-* [Model 전달자](#Model-전달자)
+	* [요청 파라미터를 통한 HTTP 전송 정보 얻기](#요청-파라미터를-통한-HTTP-전송-정보-얻기)
+		* [전통적 방식](#전통적-방식)
+		* [어노테이션 사용](#어노테이션-사용)
+		* [커멘드 객체 사용](#커멘드-객체-사용)
+	* [Model 전달자](#Model-전달자)
+* [스프링 MVC 웹서비스](#스프링-MVC-웹서비스)
+* [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스(JDBC))
+	*[Connection Pool과 DataSource](#Connection-Pool과-DataSource)
 
 21.06.11   
 ## 여는 말
@@ -461,69 +464,179 @@ public String login(ReqVO vo, RedirectAttributes RA) {
 * 사용하고자 하는 jsp 파일에 아래 코드만 추가하면 된다.
 	* <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-21.06.17    
-# 7강 스프링 MVC 웹 서비스
 
-## 전통적인 JDBC 프로그래밍
-* 드라이버 로딩 > DB 연결 > SQL 작성 및 전송 > 자원해제
-* Connection 객체 생성 > PrepareStatement 객체 생성 > SQL문 실행 > ResultSet 객체 생성 결과 처리
+## 스프링 MVC 웹서비스
+### 1. 어플리케이션 구조
+* 웹 어플리케이션의 일반적인 프로그램 구조
+![web](./img/web.png)
+
+### 2. 서비스 계층과 DAO 계층
+![serviceNdao](./img/serviceNdao.png)
+
+#### 어노테이션
+* servlet-context.xml에 아래 어노테이션이 붙은 클래스를 빈으로 생성하는 코드를 넣어줘야 한다
+	* <context:component-scan base-package="com.tonight.*" />
+* @Component : 일반적인 컴포넌트로 등록되기 위한 클래스에 사용
+* @Service : 서비스 클래스에 사용
+* @Repository : DAO 클래스 또는 repository 클래스에 사용
+
+### 3. 서비스 계층 구현
+#### 방법 1 : new 연산자를 이용한 service 객체 생성 및 참조
+#### 방법 2 : 스프링 설정파일을 이용한 서비스 객체 생성 및 의존 객체 자동 주입
+#### 방법 3 : 어노테이션을 이용한 서비스 객체 생성 및 의존 객체 자동 주입 📌
+
+```java
+// 방법1
+BoardService service = new BoardService();
+
+// 방법2
+<beans:bean id="service" class="service 구현체 경로" />
+
+// 방법3
+// 서비스 구현체
+@Service("boardService")
+public class BoardServiceImple implements BoardService {}
+
+// 컨트롤러
+@Resource(name="boardService")
+BoardService service;
+```
+
+### 4. DAO 계층 구현
+* 어노테이션을 이용한 DAO 객체 생성 및 의존 객체 자동 주입
+```java
+// DAO 구현체
+@Repository
+public class BoardDAOImpl implements BoardDAO {}
+
+// 컨트롤러
+@Autowried
+BoardDAO dao;
+```
+     
+21.06.17
+## 스프링 MVC 웹 서비스(JDBC)
+
+### 1. JDBC
+![jdbc](./img/jdbc.PNG)
+
+### 전통적인 JDBC 프로그래밍
+#### 1. Connection 객체 생성 
+#### 2. PrepareStatement 객체 생성 
+#### 3. SQL문 실행 
+#### 4. ResultSet 객체 생성 결과 처리
 * 반복적인 작업이 계속 되는 단점이 있다
 
-## Spring JDBC
-* JDBC의 장점을 유지하면서 단점을 극복하고, 간결한 형태의 API 사용법을 제공해 기존 방식에서 지원하지 않는 편리한 기능 제공
+### 2. Spring JDBC
+* JDBC Template
+* JDBC의 장점을 유지하면서 단점(전통적 방식)을 극복하고, 간결한 형태의 API 사용법을 제공해 기존 방식에서 지원하지 않는 편리한 기능 제공
 * 반복적진 작업을 대신한다
-* SQL에 바인딩할 값만 지정해주면 된다
+	* connection, prepareStatement, resultSet, Exception 처리 등
+* SQL에 바인딩할 값을 지정하기만 하면 된다
 * DB 커넥션을 가져오는 DataSource가 강제화된다
 
-## Connection Pool과 DataSource
+#### Connection Pool과 DataSource
+![springJDBC](./img/springJDBC.png)
+* Connection Pool
+	* 여러 사용자를 **동시에** 처리하는 웹 어플리케이션
+	* DB에 연결할 때 매번 연결하는 방식이 아닌 **미리 연결해서 사용하는 기법**을 이용해 성능을 향상시킨다
+	* 미리 정해진 개수만큼 DB 커넥션을 풀에 준비해두고
+	* 어플리케이션이 요청할 때마다 풀에서 꺼내서 할당하고
+	* 다시 돌려 받아 Pool에 넣는 기법이다
+	* 속도 면에서 빠르고, 최근 유행하는 **HikariCP 라이브러리**를 사용한다
 
-### Connection Pool
-* 여러 사용자를 **동시에** 처리하는 웹 어플리케이션
-* DB에 연결할 때 매번 연결하는 방식이 아닌 **미리 연결해서 사용하는 기법**
-* 이를 통해 성능을 향상시킨다
-* 미리 정해진 개수만큼 DB 커넥션을 풀에 준비해두고
-* 어플리케이션이 요청할 때마다 풀에서 꺼내서 할당하고
-* 다시 돌려 받아 Pool에 넣는 기법이다
-* 속도 면에서 빠르고, 최근 유행하는 HikariCP 라이브러리를 사용한다
+* DataSource
+	* DB에 이용되는 DriverClass, URL, id, pw를 미리 정의해놓고 사용하는 객체
+	* Spring-jdbc에서 기본적으로 제공한다
+	* 여러 커넥션풀 라이브러리에서 기본으로 제공한다
+	* 여기서는 HikariCP에서 지원하는 객체를 사용한다
 
-### DataSource
-* DB에 이용되는 URL, id, pw DriverClass를 미리 정의해놓고 사용하는 객체
-* Spring-jdbc에서 기본적으로 제공한다
-* 여러 커넥션풀 라이브러리에서 기본으로 제공한다
-* 여기서는 HikariCP에서 지원하는 객체를 사용한다
 
-## 연결 작업
-* 필요한 라이브러리를 Maven Repository에 들어가서 다운받는다
+### 연결 작업
+* 필요한 라이브러리를 Maven Repository에 들어가서 다운받아 pom.xml에 추가한다
+
 #### 1. Oracle Connector
-	* oracle jdbc를 검색한다
-	* 버전에 따라 다 커넥터가 다르기 때문에 버전을 잘 확인해야한다!!
-	* ojdbc8 19.7.0.0 버전의 dependency를 복사해 pom.xml에 붙인다.
+* oracle jdbc를 검색한다
+* 버전에 따라 다 커넥터가 다르기 때문에 버전을 잘 확인해야한다!!
+* ojdbc8 19.7.0.0 버전의 dependency를 복사해 pom.xml에 붙인다.
+
+#### 1-1. Mysql Connector
+* mysql을 검색한다
+* MySQL Connector/J를 다운받는다
+
 #### 2. hikariCP
-	* 상위 버전은 오류가 있을 수 있어서 적당한 버전을 선택한다
-	* 3.3.1 버전 사용
+* 상위 버전은 오류가 있을 수 있어서 적당한 버전을 선택한다
+* 3.3.1 버전 사용
+
 #### 3. Spring jdbc
-	* 스프링과 같은 버전으로 다운받는다
-	* 5.0.7 버전 다운
+* 스프링과 같은 버전으로 다운받는다
+* 5.0.7 버전 다운
+
 #### 4. Spring test
-	* DB 연결을 테스트하기 위해 사용한다
-	* junit 단위 테스트
-	* junit 버전을 4.12 이상 사용해야한다
+* DB 연결을 테스트하기 위해 사용한다
+* junit 단위 테스트
+* junit 버전을 4.12 이상 사용해야한다
+
 
 ### DB 구축
-1. sql developer에서 스프링에서 사용할 계정 만들기 
-2. DB 연결은 root-context에서 작업한다
+* sql developer에서 스프링에서 사용할 계정 만들기
+* Mysql 워크벤치에서 DB 만들고 사용자 권한을 추가한다
+
+#### root-context.xml 설정
+* DB 연결은 root-context에서 작업한다
 	* web.xml에 보면 가장 위에 작성되어있다
-	* 다운받은 라이브러리를 참조해서 작성하는 방식을 사용한다
-		* 아래 Namespaces 탭에서 필요한 라이브러리를 선택하면 자동으로 추가된다
-	* 아래 코드를 나중에는 보안을 위해 properties에 넣는다
+* DataSource와 HikariCP를 빈으로 등록하기 위해 namespace에서 beans와 jdbc를 추가한다
 ```
 <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 	<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+	<!-- <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" /> -->
 	<property name="jdbcUrl" value="url" />
 	<property name="username" value="name" />
 	<property name="password" value="pw" /> 
 </bean>
+
 ```
+* hikariConfig 이름으로 컨테이너에 객체를 생성하고 setter 주입으로 name에 value를 저장한다
+
+```
+<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+	<constructor-arg ref="hikariConfig" />
+</bean>
+```
+* class 속성에 정의된 클래스를 dataSource라는 이름으로 컨테이너에 객체를 생성한다
+* 위에 선언한 hikariConfig를 생성자로 주입한다 (ref는 참조 속성)
+
+#### 위의 코드를 외부 설정파일로 적용하는 방법
+* root-context.xml
+```
+<bean class="org.springframework.beans.factory.config.**PropertyPlaceholderConfigurer**">
+	<property name="location" value="**classpath:/db-config/hikari.properties**" />
+</bean>
+
+<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+	<property name="driverClassName" value="${ds.driverClassName}" />
+	<property name="jdbcUrl" value="${ds.jdbcUrl}" />
+	<property name="username" value="${ds.username}" />
+	<property name="password" value="${ds.password}" />
+</bean>
+```
+* PropertyPlaceholderConfigurer : 외부 파일을 맵핑 시켜주는 클래스
+	* 아래 파일의 이름을 ${}로 참조해서 사용할 수 있다
+  
+* db-config/hikari.properties 
+```
+# local oracle
+ds.driverClassName=oracle.jdbc.driver.OracleDriver
+ds.jdbcUrl=jdbc:oracle:thin:@localhost:1521/XEPDB1
+ds.username=spring
+ds.password=spring
+```
+
+### 3. spring-test 라이브러리 사용
+* 어노테이션의 의미
+	* @RunWith : 스프링 프레임워크가 독립적으로 실행되도록 구동환경 설정
+	* @ContextConfiguration : 사용할 스프링 설정 파일 경로 지정
+	* @Test : 해당 어노테이션이 붙은 메서드 실행
 
 # 코딩팁!
 * DB가 있어야 다른 것도 연결할 수 있기 때문에 DB 연결 작업은 프로젝트 초기에 진행한다!
