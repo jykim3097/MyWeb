@@ -24,6 +24,8 @@ spring framework ⚙
 * [스프링 MVC 웹서비스](#스프링-MVC-웹서비스)
 * [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스(JDBC))
 	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
+	* [DB 구축](#DB-구축)
+* [MyBatis](#MyBatis)
     
 21.06.11
 ## 여는 말
@@ -654,7 +656,7 @@ ds.password=pw
 * DAO 계층을 대신한다
 	* 기존 DAO의 interface의 구현 클래스를 xml로 대신한다 (mapper.xml)
     
-![mybatis](./url/mybatis.png)
+![mybatis](./img/mybatis.png)
     
 #### 전통적 JDBC 프로그래밍에 비해
 * **자동으로** Connection을 생성한다
@@ -718,8 +720,8 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-  <mapper **namespace**="com.team404.user.mapper.UserMapper">
-  	<select **id**="idCheck" **resultType**="int">
+  <mapper namespace="com.team404.user.mapper.UserMapper">
+  	<select id="idCheck" resultType="int">
   		select count(*) as result
   		from users
   		where userId = #{userId}
