@@ -22,13 +22,13 @@ spring framework ⚙
 		* [커멘드 객체 사용](#커멘드-객체-사용)
 	* [Model 전달자](#Model-전달자)
 * [스프링 MVC 웹서비스](#스프링-MVC-웹서비스)
-* [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스(JDBC))
+* [스프링 MVC 웹 서비스(JDBC)](#스프링-MVC-웹-서비스-JDBC)
 	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
 	* [DB 구축](#DB-구축)
 * [MyBatis](#MyBatis)
 * [프로젝트 준비사항](#프로젝트-준비사항)
-	* [롬복](#롬복)
-	* [타일즈 뷰 템플릿](#타일즈-뷰-템플릿)
+	* [롬복](#1.-롬복)
+	* [타일즈 뷰 템플릿](#2.-타일즈-뷰-템플릿)
 	
 
     
@@ -524,7 +524,7 @@ BoardDAO dao;
 ```
      
 21.06.17
-## 스프링 MVC 웹 서비스(JDBC)
+## 스프링 MVC 웹 서비스 JDBC
 
 ### 1. JDBC
 ![jdbc](./img/jdbc.png)
