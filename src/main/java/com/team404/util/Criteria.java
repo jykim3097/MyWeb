@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class Criteria {
 
-	private int pageNum;
-	private int amount;
+	private int pageNum; // 조회하는 페이지 번호
+	private int amount; // 한 페이지에 보여줄 컨텐츠 개수
 	
 	// 검색에 필요한 키워드 선언
 	private String searchType;

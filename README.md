@@ -26,9 +26,19 @@ spring framework ⚙
 	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
 	* [DB 구축](#DB-구축)
 * [MyBatis](#MyBatis)
+* [처음 프로젝트를 받았을 때 진행해야 할 순서](#처음-프로젝트를-받았을 때-진행해야-할-순서)
 * [프로젝트 준비사항](#프로젝트-준비사항)
 	* [롬복](#1-롬복)
 	* [타일즈 뷰 템플릿](#2-타일즈-뷰-템플릿)
+* [게시판 구현 순서](#게시판-구현-순서)
+* [검색 조건이 없는 페이징 처리](#검색-조건이-없는-페이징-처리)
+	* [Criteria 클래스](#Criteria-클래스)
+	* [오라클 sql문](#오라클-sql문)
+	* [PageVO 클래스](#PageVO-클래스)
+* [검색과 페이징](#검색과-페이징)
+
+
+
 	
 
     
@@ -759,15 +769,48 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 ]]>
 ```
 
+     
+21.06.21
+## 처음 프로젝트를 받았을 때 진행해야 할 순서
+### 1. pom.xml 수정 - 라이브러리 다운로드
+* java, spring 버전 설정
+* servlet 버전 수정 - 3.1 버전 이상으로 설정
+* 테스트(junit) 버전 수정 - 4.12
+* maven 버전 수정
+* DB 연결 설정 - oracle connector or mysql connector
+* maven update
+
+### 2. web.xml 수정 - 전체적인 설정이 들어가는 곳
+* root-context.xml 경로 설정 > 서블릿이 동작하기 전에 실행되는 스프링 설정 파일
+* 한글 처리
+* maven update - 파일에 s가 찍히면 정상적으로 동작한 것
+
+### 3. root-context.xml(스프링 설정 파일)
+* namespaces에서 jdbc, mybatis-spring 체크
+* db 접속 정보 설정
+	* hikari, mybatis 설정
+
+### 4. servlet-context.xml
+* 초기에 수정할 건 없지만
+* 컨트롤러와 서비스 경로와 타일즈뷰, 뷰리졸버를 설정할 수 있다.
+* 파일업로드도 여기에서 설정한다.
+
+
 ## 프로젝트 준비사항
 ### 1. 롬복
-* getter, setter, toString(), 생성자를 빠르게 만들 수 있는 라이브러리
-* jar 파일을 실행하고 sts를 재시작하고
-* pom.xml에 라이브러리를 추가하고 메이븐 업데이트를 실행한다
+* getter, setter, toString(), 생성자를 빠르게 만들어주는 라이브러리
+* jar 파일을 실행하고 pom.xml에 라이브러리를 추가하고 메이븐 업데이트를 실행한다
+* sts를 재시작한다
+#### 어노테이션
+* @Data : 자동으로 getter, setter, toString()이 생성된다
+* @NoArgsConstructor : 기본 생성자 추가
+* @AllArgsConstructor : 모든 멤버 변수를 초기화하는 생성자 추가
 
 ### 2. 타일즈 뷰 템플릿
 * JSP include 방식 vs resolver view tiles 셋팅
 * tiles는 웹 페이지의 상단이나 하단 메뉴와 같이 반복적으로 사용되는 부분들에 대한 코드를 분리해 한 곳에서 관리를 가능하게 하는 프레임워크
+* header, footer, body 태그를 분리할 수 있어 편리하게 사용할 수 있다.
+
 #### 1) pom.xml 설정
 * 라이브러리 다운 - tiles를 통한 공통 뷰 모듈 
 ```xml
@@ -884,6 +927,120 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	</body>
 </html>
 ```
+
+## 게시판 구현 순서
+* basic > paging > search > reply > user > file-upload
+1. 컨트롤러 생성(화면 확인)
+2. 등록 처리
+3. 테이블 생성
+4. DB 관련 설정(root-context.xml 작업)
+5. BoardVO 생성 - DB 컬럼명과 반드시 동일하게 생성
+6. Service 구현
+7. DAO 구현
+8. Mybatis DB 작업
+9. 상세보기 처리
+10. 변경 처리
+11. 삭제 처리
+12. 페이징 처리
+
+## 검색 조건이 없는 페이징 처리
+1. 반드시 **GET 방식**으로 처리한다
+2. 이동할 때 페이지 번호를 가지고 다닌다
+3. 페이징 처리하는 로직을 클래스로 분류한다 
+	* Criteria 클래스, PageVO 클래스
+
+### Criteria 클래스
+* 조회하는 페이지 번호와 한 페이지에 보여줄 컨텐츠 개수를 가지고 있다.
+```java
+@Data
+public class Criteria {
+	
+	private int pageNum; // 조회하는 페이지 번호
+	private int amount; // 한 페이지에 보여줄 컨텐츠 개수
+
+	public Criteria() {
+		this(1, 10);
+	}
+
+	public Criteria(int pageNum, int amount) {
+		this.pageNum = pageNum;
+		this.amount = amount;
+	}
+}
+```
+
+### 오라클 sql문
+* Criteria 클래스의 pageNum, amount 변수를 사용할 수 있도록 쿼리문을 작성한다
+* 조건식만큼의 데이터를 출력한다.
+
+#### getList 쿼리문
+
+```sql 
+select *
+from (select rownum as rn, bno, writer, title, content, regdate, updatedate
+        from (select *
+	    from freeboard
+	    order by bno desc))
+where rn > (#{pageNum-1}*#{amount}) and rn <= (#{pageNum}*#{amount});
+```
+
+### PageVO 클래스
+* 페이징 계산 처리 클래스
+```java
+@Data
+public class PageVO {
+	private int startPate; // 첫 페이지 번호
+	private int endPage; // 마지막 페이지 번호
+	private boolean next; // 다음 버튼 활성화 여부
+	private boolean prev; // 이전 버튼 활성화 여부
+
+	private int total; // 총 게시글 수
+	private int pageNum; // 조회할 페이지 번호 (cri 안에도 있음)
+	private int amount; // 보여질 데이터의 개수
+
+	private Criteria cri;
+
+	// 생성자
+	public PageVO(Criteria cri, int total) {
+		
+		// 번호, 개수, 총 게시글 수 초기화
+		this.pageNum = cri.getPageNum();
+		this.amount = cri.getAmount();
+		this.total = total;
+
+		this.cri = cri;
+
+		// 끝 페이지 번호 설정
+		// pageNum이 5라면 endPage는 10, 11이라면 endPage는 20이어야 한다
+		// (int)Math.ceil(pageNum / 보여질 페이지 수) * 보여질 페이지 수
+		this.endPage = (int)Math.ceil(pageNum / 10.0) * 10;
+
+		// 시작 페이지 번호 설정
+		// 끝페이지 - 보여질 페이지 수 + 1
+		this.startPage = this.endPage - 10 + 1;
+
+		// 실제 마지막 번호
+		// 총 게시글이 53개라면 마지막 끝 페이지 번호는 6, 112개라면 마지막 끝 페이지 번호는 12
+		// (int)Math.ceil(전체 게시글 수 / 화면에 표시될 데이터 amount 값)
+		int realEnd = (int)Math.ceil(this.total / (double)this.amount);
+
+		// endPage 다시 계산
+		// 총 게시글이 404개라면 endPage는 50, realEnd는 41
+		// 즉 마지막에 도달했을 때 보여질 번호를 변경한다
+		if(endPage > realEnd) this.endPage = realEnd;
+
+		// 이전 버튼 활성화 여부
+		// startPage는 1, 11, 21, 31, ...
+		this.prev = this.startPage > 1;
+
+		// 다음 버튼 활성화 여부
+		this.next = realEnd > this.endPage;
+	}
+}
+```
+
+## 검색과 페이징
+
 
 
 21.07.05    
