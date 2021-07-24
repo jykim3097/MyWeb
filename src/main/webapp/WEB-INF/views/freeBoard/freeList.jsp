@@ -70,7 +70,8 @@
 		                    
 		                    	<!-- 1. 페이지네이션 처리 -->
 		                    	<!-- 2. 이전페이지 활성화 -->
-		                    	<%-- <c:if test="${pageVO.prev }">
+		                    	<%-- 
+		                    	<c:if test="${pageVO.prev }">
 			                        <li><a href="freeList?pageNum=${pageVO.startPage - 1 }&amount=${pageVO.amount}">이전</a></li>
 		                    	</c:if>
 		                        
@@ -79,7 +80,8 @@
 		                        </c:forEach>
 		                        <c:if test="${pageVO.next }">
 			                        <li><a href="freeList?pageNum=${pageVO.endPage + 1 }&amount=${pageVO.amount}">다음</a></li>
-			                    </c:if> --%>
+			                    </c:if>
+			                     --%>
 			                    
 			                    
 		                    	<!-- 3. href에 pageNum만 담아서 보낸다-->
@@ -89,7 +91,9 @@
 		                    	</c:if>
 		                        
 		                        <c:forEach var="num" begin="${pageVO.startPage }" end="${pageVO.endPage }">		                        
-		                        	<li class="${pageVO.pageNum eq num ? 'active' : '' }"><a href="#" data-pagenum="${num }">${num }</a></li>
+		                        	<li class="${pageVO.pageNum eq num ? 'active' : '' }">
+		                        		<a href="#" data-pagenum="${num }">${num }</a>
+		                        	</li>
 		                        </c:forEach>
 		                        <c:if test="${pageVO.next }">
 			                        <li><a href="#" data-pagenum="${pageVO.endPage + 1 }">다음</a></li>

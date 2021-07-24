@@ -193,20 +193,20 @@
                     // 누적할 문자열을 만들고 innerHTML 형식으로 replyList 아래에 삽입
                     for(var i=0; i<data.length; i++) {
                     	
-                    strAdd += "<div class='reply-wrap'>";
-                    strAdd += "<div class='reply-image'>";
-                    strAdd += "<img src='../resources/img/profile.png'>";
-                    strAdd += "</div>";
-                    strAdd += "<div class='reply-content'>";
-                    strAdd += "<div class='reply-group'>";
-                    strAdd += "<strong class='left'>" + data[i].replyId + "</strong>"; 
-                    strAdd += "<small class='left'>" + data[i].timeGap + "</small>";
-                    strAdd += "<a href='" + data[i].rno + "' class='right replyModify'><span class='glyphicon glyphicon-pencil'></span>수정</a>";
-                    strAdd += "<a href='" + data[i].rno + "' class='right replyDelete'><span class='glyphicon glyphicon-remove'></span>삭제</a>";
-                    strAdd += "</div>";
-                    strAdd += "<p class='clearfix'>" + data[i].reply + "</p>";
-                    strAdd += "</div>";
-                    strAdd += "</div>";
+	                    strAdd += "<div class='reply-wrap'>";
+	                    strAdd += "<div class='reply-image'>";
+	                    strAdd += "<img src='../resources/img/profile.png'>";
+	                    strAdd += "</div>";
+	                    strAdd += "<div class='reply-content'>";
+	                    strAdd += "<div class='reply-group'>";
+	                    strAdd += "<strong class='left'>" + data[i].replyId + "</strong>"; 
+	                    strAdd += "<small class='left'>" + data[i].timeGap + "</small>";
+	                    strAdd += "<a href='" + data[i].rno + "' class='right replyModify'><span class='glyphicon glyphicon-pencil'></span>수정</a>";
+	                    strAdd += "<a href='" + data[i].rno + "' class='right replyDelete'><span class='glyphicon glyphicon-remove'></span>삭제</a>";
+	                    strAdd += "</div>";
+	                    strAdd += "<p class='clearfix'>" + data[i].reply + "</p>";
+	                    strAdd += "</div>";
+	                    strAdd += "</div>";
                     }
                     /* console.log(strAdd); */
                     

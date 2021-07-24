@@ -26,11 +26,15 @@ spring framework ⚙
 	* [Connection Pool과 DataSource](#Connection-Pool과-DataSource)
 	* [DB 구축](#DB-구축)
 * [MyBatis](#MyBatis)
-* [처음 프로젝트를 받았을 때 진행해야 할 순서](#처음-프로젝트를-받았을 때-진행해야-할-순서)
+* [처음 프로젝트를 받았을 때 진행해야 할 순서](#처음-프로젝트를-받았을-때-진행해야-할-순서)
 * [프로젝트 준비사항](#프로젝트-준비사항)
 	* [롬복](#1-롬복)
 	* [타일즈 뷰 템플릿](#2-타일즈-뷰-템플릿)
 * [게시판 구현 순서](#게시판-구현-순서)
+* [서비스 구현](#서비스-구현)
+* [JS history](#JS-history)
+* [조회](#조회)
+* [timestamp 에러 해결](#timestamp-에러-해결)
 * [검색 조건이 없는 페이징 처리](#검색-조건이-없는-페이징-처리)
 	* [Criteria 클래스](#Criteria-클래스)
 	* [오라클 sql문](#오라클-sql문)
@@ -943,10 +947,78 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 11. 삭제 처리
 12. 페이징 처리
 
+     
+21.06.22
+### 서비스 구현
+* service intreface와 mapper interface를 만들고 구현체를 만든다
+	* service의 구현체는 자바로 작성
+	* mapper의 구현체는 mybatis로 작성할 거기 때문에 xml로 만든다
+		* 아래 코드를 추가하고 mapper 태그를 열어 경로 설정 후 sql 문장을 작성한다
+```xml
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper>
+		<!-- sql 문 작성 -->
+	</mapper>
+```
+
+### DB에 넣을 데이터를 받는 view (freeRegist.jsp)
+* required : 빈칸 방지, submit을 눌렀을 때 빈칸이면 넘어가지 않는다
+* form의 action 값을 받을 컨트롤러를 만든다
+#### vo객체를 받을 Service 구현
+* servlet-context.xml에 component scan으로 Service를 주입한다.
+```xml
+<context:component-scan base-package="com.team404.*.service" />
+```
+#### mapper 연결 확인(root-context.xml)
+```xml
+<mybatis-spring:scan base-package="com.team404.*.mapper"/>
+```
+
+### JS history
+#### window history
+* 뒤로 가기 했을 때 남아있는 정보를 처리하기 위해 사용한다
+* history.back() : 윈도우 열람 이력에서 두로 이동
+* history.forward() : 윈도우 열람 이력에서 앞으로 이동
+* history.go()
+* window.history.length;
+	* 페이지가 몇 페이지로 구성되어 있는 지 알 수 있다.
+
+#### browser history
+* history.pushState()
+	* state 객체, title, url 객체를 갖는다
+	* 새로운 history를 추가하지만 실제 페이지 이동은 일으키지 않는다
+* history.replaceState()
+	* 새로운 히스토리를 존재하는 히스토리에 덮어쓴다
+
+> https://coding-restaurant.tistory.com/192
+
+### 컨트롤러
+* 등록 요청 수행 후(메세지도 넘기고) 컨트롤러를 태워 목록화면으로 간다
+
+### 조회
+* service, mapper 인터페이스에 조회 구문 추가
+* service 구현체에 오버라이드
+* mapper xml에 sql 코드 추가
+	* select문을 사용하면 vo가 결과로 나오므로 resultType을 설정해줘야 한다
+	* resultType에는 vo 경로를 다 적어줘도 되지만 
+	* mybatis-config에 경로와 별명을 미리 적어두고 사용할 수 있다
+
+### header에서 화면 연결
+* el 태그 활용, href에 아래 코드 추가
+	* ${pageContext.request.contextPath }
+
+### timestamp 에러 해결
+* 계속해서 날짜를 못받아오는 에러가 있었는데, 객체를 생성할 때 Timestamp의 경로를 잘못 import한 문제였다
+* java.**sql**.Timestamp를 import 해야 한다
+
+     
+21.06.23
 ## 검색 조건이 없는 페이징 처리
 1. 반드시 **GET 방식**으로 처리한다
 2. 이동할 때 페이지 번호를 가지고 다닌다
-3. 페이징 처리하는 로직을 클래스로 분류한다 
+3. 페이징 처리하는 로직을 클래스로 분류한다
 	* Criteria 클래스, PageVO 클래스
 
 ### Criteria 클래스
@@ -1039,7 +1111,87 @@ public class PageVO {
 }
 ```
 
+### 화면처리 (jsp)
+* 컨트롤러에서 값을 받아와 a 태그로 처리한다
+```jsp
+<!-- 이전 페이지 활성화 -->
+<c:if test="${pageVO.prev }">
+	<li><a href="freeList?pageNum=${pageVO.startPage - 1 }&amount=${pageVO.amount}">이전</a></li>
+</c:if>
+		                        
+<c:forEach var="num" begin="${pageVO.startPage }" end="${pageVO.endPage }">		                        
+	<li class="${pageVO.pageNum eq num ? 'active' : '' }">
+		<a href="freeList?pageNum=${num }&amount=${pageVO.amount}">${num }</a>
+	</li>
+</c:forEach>
+
+<!-- 다음 페이지 활성화 -->
+<c:if test="${pageVO.next }">
+	<li><a href="freeList?pageNum=${pageVO.endPage + 1 }&amount=${pageVO.amount}">다음</a></li>
+</c:if>
+```
+
 ## 검색과 페이징
+1. 페이징 처리를 a태그에서 form 전송으로 보낸다
+2. Criteria에 searchName 키워드와 searchType 키워드 변수를 추가한다
+3. 페이징 쿼리를 **동적 쿼리**로 변경
+4. 전체 게시글 수를 **동적 쿼리**로 변경
+5. search form과 page form을 나눈다
+6. **hidden**을 사용해 두 form에서 pageNum, amount, searchType, searchName을 동시에 넘긴다
+7. 검색 후 화면에서 일어나는 문제를 해결한다.
+	* 예를 들어, 3페이지에서 검색했을 때 pageNum을 1로 바꾸도록 처리한다
+	* select 박스에 검색 조건이 남게 처리한다
+	* input 박스에 검색 단어가 남게 처리한다
+
+### 동적 쿼리란?
+* Mybatis의 태그로, 조건문을 써서 쿼리 실행을 제어하는 방법이다.
+* jstl 구문과 사용방법이 유사하다
+* Mybatis의 test="" 구문 안에 작성되는 값은 VO의 getter나, map의 key값이 쓰인다.
+
+#### 대표적인 태그의 종류
+* if
+* choose(when, otherwise)
+* foreach
+* include 등
+
+### 1. 페이징 처리를 a태그에서 form 전송으로
+* a태그에 onclick 함수를 추가해 자바스크립트를 이용한다.
+
+#### 1) 기본 이벤트 방식
+* hidden type으로 만든 input에 페이지번호를 담아 보낸다 (setAttribute)
+
+#### 2) 이벤트 위임 방식
+* 부모에 이벤트를 걸고 클릭 시 event 객체를 이용해 자식 태그에서 적용하는 방법
+
+#### 3) dataset 사용
+* dataset에 페이지 번호를 담고 이 값을 전송한다
+
+### 2. Criteria에 searchName과 searchType 변수 추가
+
+### 3. 페이징 쿼리와 전체 게시글 쿼리를 동적 쿼리로 변경한다
+
+### 4. 검색폼과 페이징 폼에서 변수를 hidden을 이용해 전송한다
+
+### 5. 검색 후 select 박스 키워드와 검색 input 키워드를 유지하도록 처리한다
+
+## REST API
+
+### @RestController란?
+* @Controller는 return에 Model을 담아서 JSP에 전달하는 방식으로 사용
+* @RestController는 return에 처리하는 데이터를 다른 타입으로 처리한다
+* 즉 객체(데이터)를 반환할 수도 있고 객체(데이터)를 받을 수도 있다는 뜻이다.
+* 이 객체, 데이터가 바로 JSON 형식이다.
+
+#### @RestController는 비동기 요청 컨트롤러
+* RequestMapping으로 들어오는 요청을 받아들이는 것은 동일하지만 return의 결과는 뷰리졸버가 아니라 요청한 화면으로 리턴된다.
+* 이때 객체를 화면으로 보낼 수도 있는데, 이를 자동으로 JSON형으로 변환해주는 **jackson-databind** 라이브러리가 반드시 필요하다
+
+### @RestController의 기본 어노테이션
+* @RestController : Controller가 rest 방식임을 명시한다
+* @ResponseBody : 뷰리졸버로 전달하는 게 아니라 데이터를 요청한 화면으로 전달한다는 것을 명시한다
+	* @RestController에는 포함되어 있다
+* @PathVariable : url 경로에 파라미터를 줄 수도 있고, url 경로에 있는 값을 추출할 때 사용한다
+* @RequestBody : JSON 데이터를 자동으로 바인딩 처리한다
 
 
 
