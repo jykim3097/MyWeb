@@ -208,7 +208,6 @@
 	                    strAdd += "</div>";
 	                    strAdd += "</div>";
                     }
-                    /* console.log(strAdd); */
                     
                     $("#replyList").html(strAdd); // 추가
 

@@ -14,27 +14,27 @@
 
 	<select id="getList" resultType="FreeReplyVO">
   		<![CDATA[
-  			select *
+			select *
 			from (
-				select @rownum := @rownum + 1 rn,
-					   a.*,
-					   case when gap <= 60 then '방금 전'
-							when gap <= 60*24 then concat(truncate(gap/60, 0), '시간 전')
-							else date_format(replyDate, '%Y-%m-%d')
+			    select rownum rn,
+			           a.*,
+			           case when gap <= 60 then '방금 전'
+			                when gap <= 60*24 then trunc(gap/60) || '시간 전'
+			                else to_char(replyDate, 'YYYY-MM-DD')
 			           end as timegap
-				from (
-					select rno,
-						   bno,
-						   reply,
-						   replyId,
-						   replyPw,
-						   replyDate,
-						   updateDate,
-						   truncate((now() - replydate) / 60, 0) as gap
-						from FREEREPLY 
-			            where bno = 1 order by rno desc ) a ) b, (select @rownum := 0 ) c
+			    from (
+			        select rno,
+			               bno,
+			               reply,
+			               replyId,
+			               replyPw,
+			               replyDate,
+			               updateDate,
+			               trunc((sysdate - replydate) * 24 * 60) as gap
+			            from FREEREPLY 
+			            where bno = #{bno}
+			            order by rno desc ) a )
 			where rn > (#{cri.pageNum} - 1) * #{cri.amount} and rn <= #{cri.pageNum} * #{cri.amount}
-			
 		]]>
 	</select>
 	
